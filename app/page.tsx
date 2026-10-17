@@ -129,12 +129,10 @@ export default function ChatPage() {
         <div className="flex items-center gap-3">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src="/agentcard-trueblue-main.svg" alt="Agentcard" className="h-6 w-auto" />
-          <span className="rounded-full bg-secondary px-2.5 py-0.5 font-mono text-[11px] tracking-[0.12em] text-primary uppercase">
-            Shopping agent
-          </span>
+          <span className="chip">Shopping agent</span>
         </div>
         <div className="flex items-center gap-3">
-          <code className="hidden text-xs text-muted-foreground sm:block">{shopperId ?? "…"}</code>
+          <code className="hidden font-label text-xs text-muted-foreground sm:block">{shopperId ?? "…"}</code>
           <Button variant="outline" size="icon" aria-label="New shopper" onClick={reset} disabled={busy}>
             <RotateCwIcon />
           </Button>
@@ -146,7 +144,7 @@ export default function ChatPage() {
           {turns.length === 0 ? (
             <Empty className="h-full">
               <EmptyHeader>
-                <div className="mb-2 flex size-12 items-center justify-center rounded-2xl bg-primary">
+                <div className="mb-2 flex size-12 items-center justify-center rounded-2xl bg-electric">
                   {/* eslint-disable-next-line @next/next/no-img-element */}
                   <img src="/agentcard-white-symbol.svg" alt="" className="size-6" />
                 </div>
@@ -163,7 +161,7 @@ export default function ChatPage() {
                     type="button"
                     onClick={() => void send(suggestion)}
                     disabled={!shopperId}
-                    className="w-full rounded-xl border bg-background px-4 py-3 text-left text-sm transition-colors hover:border-primary hover:bg-secondary disabled:opacity-50"
+                    className="suggest slab w-full px-4 py-3 text-left text-sm disabled:opacity-50"
                   >
                     {suggestion}
                   </button>
@@ -206,7 +204,8 @@ export default function ChatPage() {
         }}
         className="px-6 pt-2 pb-6"
       >
-        <InputGroup className="rounded-2xl">
+        {/* The send key is disabled while the draft is empty; keep the field white, not greyed. */}
+        <InputGroup className="slab rounded-xl has-disabled:bg-card has-disabled:opacity-100">
           <InputGroupTextarea
             name="message"
             value={draft}
@@ -226,7 +225,7 @@ export default function ChatPage() {
               type="submit"
               variant="default"
               size="icon-sm"
-              className="ml-auto rounded-full"
+              className="ml-auto"
               aria-label="Send"
               disabled={busy || !draft.trim()}
             >
@@ -292,7 +291,7 @@ function AssistantTurn({ turn, busy, onChoose }: { turn: Turn; busy: boolean; on
           </div>
         )}
         {!turn.pending && turn.totalMs !== undefined && (
-          <MessageFooter className="px-0">
+          <MessageFooter className="px-0 font-label font-normal">
             {seconds(turn.totalMs)}
             {turn.firstWordMs !== undefined && turn.totalMs - turn.firstWordMs > 1000
               ? ` · first word at ${seconds(turn.firstWordMs)}`
@@ -323,7 +322,7 @@ function ProductCard({
   return (
     <div
       data-chosen={chosen}
-      className="group/product flex flex-col overflow-hidden rounded-xl border bg-card transition-colors data-[chosen=true]:border-primary data-[chosen=true]:ring-2 data-[chosen=true]:ring-primary/20"
+      className="group/product slab flex flex-col overflow-hidden data-[chosen=true]:border-primary data-[chosen=true]:shadow-[6px_6px_0_color-mix(in_srgb,var(--palette-blue-hi)_30%,transparent)]"
     >
       <button
         type="button"
@@ -332,7 +331,7 @@ function ProductCard({
         className="flex flex-1 flex-col text-left disabled:cursor-default"
         aria-label={`Buy ${link.title ?? "this product"}`}
       >
-        <div className="flex aspect-square items-center justify-center bg-muted p-3">
+        <div className="flex aspect-square items-center justify-center border-b bg-muted p-3">
           {image ? (
             // eslint-disable-next-line @next/next/no-img-element
             <img
@@ -349,12 +348,12 @@ function ProductCard({
         </div>
         <div className="flex flex-1 flex-col gap-1 p-3">
           {product?.store && (
-            <span className="font-mono text-[10px] tracking-[0.12em] text-muted-foreground uppercase">
+            <span className="font-label text-xs text-muted-foreground">
               {product.store}
             </span>
           )}
           <span className="line-clamp-2 text-sm leading-snug font-medium">{link.title ?? link.url}</span>
-          {link.price && <span className="text-sm font-semibold text-primary">{link.price}</span>}
+          {link.price && <span className="font-label text-sm font-medium text-primary">{link.price}</span>}
         </div>
       </button>
       <div className="flex items-center gap-2 border-t p-2">

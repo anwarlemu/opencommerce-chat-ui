@@ -4,25 +4,96 @@
 
 @custom-variant dark (&:is(.dark *));
 
+/* ===========================================================================
+   AGENTCARD — the palette, type and surfaces of agentcard.sh, brought into
+   the chat. Nothing outside this block introduces a colour; every other
+   value is one of these mixed toward another.
+
+     blue        #1520b8  the deep ground
+     blue-hi     #2e3ae8  buttons, links, the one chromatic thing on paper
+     electric    #050ef4  the lit ground, worn under the scan
+     ink         #171818  text
+     paper       #f2f1ec  the warm off-white
+     sky         #ccdbff  labels on blue, the pale chip
+     white       #ffffff  the raised surface
+     heart       #f24656  errors only
+
+   The logo files in /public are Agentcard's own (#0000ff) and are left as
+   they are.
+   =========================================================================== */
+:root {
+  --palette-blue: #1520b8;
+  --palette-blue-hi: #2e3ae8;
+  --palette-electric: #050ef4;
+  --palette-ink: #171818;
+  --palette-paper: #f2f1ec;
+  --palette-sky: #ccdbff;
+  --palette-white: #ffffff;
+  --palette-heart: #f24656;
+
+  --font-display:
+    "Neue Haas Grotesk Display Pro", "Neue Haas Grotesk Display", "Helvetica Neue", Helvetica, Arial,
+    sans-serif;
+  --label-face:
+    "Neue Haas Grotesk Text", "Neue Haas Grotesk Text Pro", "Helvetica Neue", Helvetica, Arial, sans-serif;
+
+  /* The site's one curve, and its press. */
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* The keys: bevelled buttons, 8px corners (globals.css on the site). */
+  --bevel-r: 8px;
+  --bevel-blue:
+    inset 0 1px 0 color-mix(in srgb, var(--palette-white) 34%, transparent),
+    inset 0 -2px 0 color-mix(in srgb, var(--palette-ink) 16%, transparent),
+    0 1px 2px color-mix(in srgb, var(--palette-ink) 24%, transparent),
+    0 3px 8px color-mix(in srgb, var(--palette-blue) 18%, transparent);
+  --bevel-white:
+    inset 0 1px 0 var(--palette-white),
+    inset 0 -2px 0 color-mix(in srgb, var(--palette-ink) 8%, transparent),
+    0 1px 2px color-mix(in srgb, var(--palette-ink) 22%, transparent),
+    0 3px 8px color-mix(in srgb, var(--palette-ink) 10%, transparent);
+  --bevel-pressed:
+    inset 0 2px 3px color-mix(in srgb, var(--palette-ink) 22%, transparent),
+    inset 0 -1px 0 color-mix(in srgb, var(--palette-white) 18%, transparent);
+  --bevel-edge-blue: color-mix(in srgb, var(--palette-blue) 72%, var(--palette-ink));
+  --bevel-edge-white: color-mix(in srgb, var(--palette-ink) 16%, transparent);
+
+  /* The scan the lit grounds wear: ink lines every third pixel, a vignette,
+     and shade in from both sides. */
+  --scan:
+    repeating-linear-gradient(0deg, color-mix(in srgb, var(--palette-ink) 16%, transparent) 0 1px, transparent 1px 3px),
+    radial-gradient(ellipse at center, transparent 55%, color-mix(in srgb, var(--palette-ink) 38%, transparent)),
+    linear-gradient(90deg, color-mix(in srgb, var(--palette-ink) 34%, transparent), transparent 16%, transparent 84%, color-mix(in srgb, var(--palette-ink) 34%, transparent));
+
+  /* shadcn's roles, pointed at the palette. */
+  --background: var(--palette-white);
+  --foreground: var(--palette-ink);
+  --card: var(--palette-white);
+  --card-foreground: var(--palette-ink);
+  --popover: var(--palette-white);
+  --popover-foreground: var(--palette-ink);
+  --primary: var(--palette-blue-hi);
+  --primary-foreground: var(--palette-white);
+  --secondary: color-mix(in srgb, var(--palette-sky) 40%, var(--palette-white));
+  --secondary-foreground: var(--palette-blue-hi);
+  --muted: var(--palette-paper);
+  --muted-foreground: color-mix(in srgb, var(--palette-ink) 62%, var(--palette-white));
+  --accent: color-mix(in srgb, var(--palette-sky) 40%, var(--palette-white));
+  --accent-foreground: var(--palette-blue-hi);
+  --destructive: var(--palette-heart);
+  --border: color-mix(in srgb, var(--palette-ink) 14%, transparent);
+  --input: color-mix(in srgb, var(--palette-ink) 18%, transparent);
+  --ring: var(--palette-blue-hi);
+  --radius: 0.5rem;
+}
+
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-geist-sans);
-  --color-sidebar-ring: var(--sidebar-ring);
-  --color-sidebar-border: var(--sidebar-border);
-  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
-  --color-sidebar-accent: var(--sidebar-accent);
-  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
-  --color-sidebar-primary: var(--sidebar-primary);
-  --color-sidebar-foreground: var(--sidebar-foreground);
-  --color-sidebar: var(--sidebar);
-  --color-chart-5: var(--chart-5);
-  --color-chart-4: var(--chart-4);
-  --color-chart-3: var(--chart-3);
-  --color-chart-2: var(--chart-2);
-  --color-chart-1: var(--chart-1);
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-heading: var(--font-display);
+  --font-label: var(--label-face);
+  --font-mono: var(--label-face);
   --color-ring: var(--ring);
   --color-input: var(--input);
   --color-border: var(--border);
@@ -39,82 +110,18 @@
   --color-popover: var(--popover);
   --color-card-foreground: var(--card-foreground);
   --color-card: var(--card);
+  --color-ink: var(--palette-ink);
+  --color-paper: var(--palette-paper);
+  --color-sky: var(--palette-sky);
+  --color-electric: var(--palette-electric);
+  --ease-site: var(--ease);
   --radius-sm: calc(var(--radius) * 0.6);
   --radius-md: calc(var(--radius) * 0.8);
   --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
-  --radius-2xl: calc(var(--radius) * 1.8);
-  --radius-3xl: calc(var(--radius) * 2.2);
-  --radius-4xl: calc(var(--radius) * 2.6);
-}
-
-:root {
-  --background: #ffffff;
-  --foreground: #1c1f2a;
-  --card: #ffffff;
-  --card-foreground: #1c1f2a;
-  --popover: #ffffff;
-  --popover-foreground: #1c1f2a;
-  --primary: #0000ff;
-  --primary-foreground: #ffffff;
-  --secondary: #f2f3ff;
-  --secondary-foreground: #1c1f2a;
-  --muted: #f4f5f9;
-  --muted-foreground: #5d6275;
-  --accent: #ebedff;
-  --accent-foreground: #0000ff;
-  --destructive: oklch(0.577 0.245 27.325);
-  --border: #e3e5ee;
-  --input: #e3e5ee;
-  --ring: #0000ff;
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --radius: 0.75rem;
-  --sidebar: oklch(0.985 0 0);
-  --sidebar-foreground: oklch(0.145 0 0);
-  --sidebar-primary: oklch(0.205 0 0);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.97 0 0);
-  --sidebar-accent-foreground: oklch(0.205 0 0);
-  --sidebar-border: oklch(0.922 0 0);
-  --sidebar-ring: oklch(0.708 0 0);
-}
-
-.dark {
-  --background: oklch(0.145 0 0);
-  --foreground: oklch(0.985 0 0);
-  --card: oklch(0.205 0 0);
-  --card-foreground: oklch(0.985 0 0);
-  --popover: oklch(0.205 0 0);
-  --popover-foreground: oklch(0.985 0 0);
-  --primary: oklch(0.922 0 0);
-  --primary-foreground: oklch(0.205 0 0);
-  --secondary: oklch(0.269 0 0);
-  --secondary-foreground: oklch(0.985 0 0);
-  --muted: oklch(0.269 0 0);
-  --muted-foreground: oklch(0.708 0 0);
-  --accent: oklch(0.269 0 0);
-  --accent-foreground: oklch(0.985 0 0);
-  --destructive: oklch(0.704 0.191 22.216);
-  --border: oklch(1 0 0 / 10%);
-  --input: oklch(1 0 0 / 15%);
-  --ring: oklch(0.556 0 0);
-  --chart-1: oklch(0.87 0 0);
-  --chart-2: oklch(0.556 0 0);
-  --chart-3: oklch(0.439 0 0);
-  --chart-4: oklch(0.371 0 0);
-  --chart-5: oklch(0.269 0 0);
-  --sidebar: oklch(0.205 0 0);
-  --sidebar-foreground: oklch(0.985 0 0);
-  --sidebar-primary: oklch(0.488 0.243 264.376);
-  --sidebar-primary-foreground: oklch(0.985 0 0);
-  --sidebar-accent: oklch(0.269 0 0);
-  --sidebar-accent-foreground: oklch(0.985 0 0);
-  --sidebar-border: oklch(1 0 0 / 10%);
-  --sidebar-ring: oklch(0.556 0 0);
+  --radius-xl: calc(var(--radius) * 1.5);
+  --radius-2xl: calc(var(--radius) * 2);
+  --radius-3xl: calc(var(--radius) * 2.5);
+  --radius-4xl: calc(var(--radius) * 3);
 }
 
 @layer base {
@@ -126,5 +133,110 @@
   }
   html {
     @apply font-sans;
+  }
+}
+
+@layer components {
+  /* THE KEYS — every button is one of these. Hover brightens, press sinks. */
+  .key {
+    border: 1px solid var(--bevel-edge-blue);
+    border-radius: var(--bevel-r);
+    background: var(--palette-blue-hi);
+    color: var(--palette-white);
+    box-shadow: var(--bevel-blue);
+    font-family: var(--label-face);
+    font-weight: 400;
+    letter-spacing: 0;
+    transition:
+      background-color 160ms var(--ease),
+      box-shadow 160ms var(--ease),
+      transform 120ms var(--ease);
+  }
+  .key-white {
+    border: 1px solid var(--bevel-edge-white);
+    border-radius: var(--bevel-r);
+    background: var(--palette-white);
+    color: var(--palette-blue-hi);
+    box-shadow: var(--bevel-white);
+    font-family: var(--label-face);
+    font-weight: 400;
+    letter-spacing: 0;
+    transition:
+      background-color 160ms var(--ease),
+      box-shadow 160ms var(--ease),
+      transform 120ms var(--ease);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .key:hover {
+      background: color-mix(in srgb, var(--palette-blue-hi) 88%, var(--palette-white));
+    }
+    .key-white:hover {
+      background: color-mix(in srgb, var(--palette-sky) 45%, var(--palette-white));
+    }
+  }
+  :is(.key, .key-white):active:not(:disabled) {
+    transform: translateY(1px);
+    box-shadow: var(--bevel-pressed);
+    transition-duration: 80ms;
+  }
+
+  /* THE CARD — white, a hairline, and the 6px offset shadow (.v7-prod). */
+  .slab {
+    border: 1px solid color-mix(in srgb, var(--palette-ink) 22%, transparent);
+    border-radius: 12px;
+    background: var(--palette-white);
+    box-shadow: 6px 6px 0 color-mix(in srgb, var(--palette-ink) 10%, transparent);
+  }
+
+  /* The suggestions: cards that lift toward the pointer and press flat,
+     as the site's .v7-button does. */
+  .suggest {
+    transition:
+      transform 160ms var(--ease),
+      box-shadow 160ms var(--ease),
+      border-color 160ms var(--ease);
+  }
+  @media (hover: hover) and (pointer: fine) {
+    .suggest:hover:not(:disabled) {
+      transform: translate(-2px, -2px);
+      border-color: var(--palette-blue-hi);
+      box-shadow: 8px 8px 0 color-mix(in srgb, var(--palette-blue-hi) 22%, transparent);
+    }
+  }
+  .suggest:active:not(:disabled) {
+    transform: translate(3px, 3px);
+    box-shadow: 3px 3px 0 color-mix(in srgb, var(--palette-blue-hi) 22%, transparent);
+    transition-duration: 100ms;
+  }
+
+  /* THE LIT GROUND — electric blue under the scan. */
+  .lit {
+    background-color: var(--palette-electric);
+    background-image: var(--scan);
+    color: var(--palette-white);
+  }
+
+  /* THE CHIP — the pale blue label (.v7-eco-label[data-blue]). */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    padding: 2px 10px;
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--palette-sky) 40%, var(--palette-white));
+    box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--palette-blue-hi) 30%, transparent);
+    color: var(--palette-blue-hi);
+    font-family: var(--label-face);
+    font-size: 12px;
+    font-weight: 500;
+    line-height: 18px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :is(.key, .key-white, .suggest) {
+    transition: none;
+  }
+  :is(.key, .key-white, .suggest):is(:hover, :active):not(:disabled) {
+    transform: none;
   }
 }
