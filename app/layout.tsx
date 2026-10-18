@@ -11,7 +11,7 @@ const inter = Inter({
 });
 
 export const metadata: Metadata = {
-  title: "Opencommerce — Shopping agent",
+  title: "Agentcard shopping agent",
   icons: { icon: "/agentcard-trueblue-symbol.svg" },
   description: "Find products, book tables, and arrange deliveries with the Opencommerce shopping agent. An interactive demo by Agentcard.",
 };

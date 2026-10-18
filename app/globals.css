@@ -12,6 +12,7 @@
   --palette-ink: #171818;
   --palette-blue: #2e3ae8;
   --palette-blue-deep: #1520b8;
+  --palette-electric: #050ef4;
   --palette-sky: #ccdbff;
   --palette-heart: #f24656;
 
@@ -19,6 +20,7 @@
     "Neue Haas Grotesk Display Pro", "Neue Haas Grotesk Display", "Helvetica Neue", Helvetica, Arial,
     sans-serif;
   --label-face: var(--font-display);
+  --font-code: ui-monospace, "SF Mono", SFMono-Regular, Menlo, Consolas, monospace;
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --line: color-mix(in srgb, var(--palette-ink) 9%, var(--palette-white));
   --line-strong: color-mix(in srgb, var(--palette-ink) 16%, var(--palette-white));
@@ -28,7 +30,7 @@
     0 1px 2px color-mix(in srgb, var(--palette-ink) 4%, transparent),
     0 12px 32px -20px color-mix(in srgb, var(--palette-ink) 22%, transparent);
   --frame-max: 1200px;
-  --content-max: 800px;
+  --content-max: 720px;
   --page-pad: clamp(20px, 4vw, 40px);
 
   /* Keep the shared UI primitives on the same palette. */
@@ -147,9 +149,22 @@
   }
 
   .chat-app {
+    position: relative;
+    isolation: isolate;
     display: flex;
     height: 100dvh;
     flex-direction: column;
+  }
+  /* The reference site's actual *@ canvas, with its clear-centre fade.
+     It stays behind the chat, never intercepting input or scrolling. */
+  .chat-ascii {
+    position: fixed;
+    z-index: -1;
+    top: 64px;
+    left: 0;
+    width: 100%;
+    height: calc(100dvh - 64px);
+    pointer-events: none;
   }
   .site-header {
     display: flex;
@@ -184,26 +199,28 @@
     pointer-events: none;
     content: "";
   }
-  .site-logo {
+  .site-brand {
     display: flex;
-    align-items: baseline;
-    padding: 9px 12px 11px;
+    align-items: center;
+    gap: 12px;
+    padding: 7px 12px;
     font-family: var(--font-display);
     line-height: 1;
   }
-  .site-logo-name {
-    font-size: 17px;
-    font-weight: 500;
-    letter-spacing: -0.02em;
-  }
-  .site-logo-byline {
-    margin-left: 6px;
+  .brand-label {
     font-size: 12px;
     color: var(--muted-foreground);
+    white-space: nowrap;
+  }
+  @media (max-width: 380px) {
+    .site-brand {
+      gap: 8px;
+      padding-inline: 8px;
+    }
   }
   .chat-main {
     display: flex;
-    width: min(100% - 2 * var(--page-pad), var(--content-max));
+    width: min(100% - 48px, var(--content-max));
     min-height: 0;
     flex: 1;
     flex-direction: column;
@@ -215,49 +232,41 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    padding-block: 48px;
+    padding-block: 24px;
     text-align: center;
   }
-  .chip {
-    display: inline-flex;
-    align-items: center;
-    padding: 6px 14px;
-    border: 1px solid var(--line-strong);
-    border-radius: 6px;
-    background: var(--palette-white);
-    color: var(--muted-foreground);
-    font-family: var(--label-face);
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 22px;
+  .welcome-mark {
+    display: grid;
+    width: 48px;
+    height: 48px;
+    place-items: center;
+    margin-bottom: 16px;
+    border-radius: 16px;
+    background: var(--palette-electric);
   }
   .welcome-title {
-    margin-top: 16px;
-    font-size: clamp(40px, 5.4vw, 54px);
-    line-height: 1.02;
-    letter-spacing: -0.03em;
+    font-size: 18px;
+    line-height: 28px;
+    letter-spacing: -0.025em;
   }
   .welcome-description {
-    max-width: 440px;
-    margin-top: 14px;
+    max-width: 384px;
+    margin-top: 8px;
     color: var(--muted-foreground);
-    font-size: 16px;
-    line-height: 1.55;
+    font-size: 14px;
+    line-height: 1.625;
   }
   .suggestions {
     display: grid;
     width: 100%;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 12px;
-    margin-top: 36px;
+    max-width: 448px;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    margin-top: 16px;
   }
   .suggest {
-    display: flex;
     min-width: 0;
-    align-items: flex-start;
-    flex-direction: column;
-    gap: 16px;
-    padding: 18px;
+    padding: 12px 16px;
     border: 1px solid var(--line-strong);
     border-radius: 6px;
     background: var(--palette-white);
@@ -268,13 +277,6 @@
       background-color 160ms var(--ease),
       border-color 160ms var(--ease),
       transform 120ms var(--ease);
-  }
-  .suggest-icon {
-    width: 20px;
-    height: 20px;
-    flex-shrink: 0;
-    color: var(--primary);
-    stroke-width: 1.5;
   }
   .suggest:focus-visible, .product-card > button:focus-visible {
     outline-offset: -3px;
@@ -349,25 +351,6 @@
     .suggest:hover:not(:disabled) {
       border-color: color-mix(in srgb, var(--palette-blue) 40%, var(--palette-white));
       background: var(--accent-soft);
-    }
-  }
-  @media (max-width: 639px) {
-    .site-logo-byline {
-      display: none;
-    }
-    .chat-welcome {
-      padding-block: 32px;
-    }
-    .suggestions {
-      grid-template-columns: 1fr;
-      gap: 8px;
-      margin-top: 24px;
-    }
-    .suggest {
-      flex-direction: row;
-      align-items: center;
-      gap: 12px;
-      padding: 12px 14px;
     }
   }
 }

@@ -3,8 +3,6 @@
 import * as React from "react"
 import {
   ArrowUpIcon,
-  BatteryIcon,
-  CableIcon,
   CheckIcon,
   CreditCardIcon,
   ExternalLinkIcon,
@@ -12,10 +10,10 @@ import {
   LogInIcon,
   RotateCwIcon,
   ShieldCheckIcon,
-  UtensilsIcon,
 } from "lucide-react"
 
 import { streamChat, type ChatLink, type ChatProduct } from "@/lib/chat-stream"
+import { BinaryStage } from "@/components/binary-stage"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { Button } from "@/components/ui/button"
 import {
@@ -48,9 +46,9 @@ type Turn = {
 }
 
 const SUGGESTIONS = [
-  { text: "Find AA batteries on Amazon", icon: BatteryIcon },
-  { text: "Book a table for 2 at an Italian place in SF tonight at 7pm", icon: UtensilsIcon },
-  { text: "Find a USB-C charging cable under $20", icon: CableIcon },
+  "Find AA batteries on Amazon",
+  "Book a table for 2 at an Italian place in SF tonight at 7pm",
+  "Find a USB-C charging cable under $20",
 ]
 
 const ACTION_LINKS: Record<Exclude<ChatLink["kind"], "product">, { label: string; icon: React.ReactNode }> = {
@@ -127,19 +125,17 @@ export default function ChatPage() {
 
   return (
     <div className="chat-app">
+      <BinaryStage fade="in" className="chat-ascii" />
       <header className="site-header">
-        <a
-          href="https://opencommerce-agentcard-web.vercel.app/"
-          className="nav-tray site-logo"
-          aria-label="Opencommerce by Agentcard — home"
-        >
-          <span className="site-logo-name">opencommerce</span>
-          <span className="site-logo-byline">by Agentcard</span>
-        </a>
+        <div className="nav-tray site-brand">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img src="/agentcard-trueblue-main.svg" alt="Agentcard" className="h-6 w-auto max-[380px]:h-5" />
+          <span className="brand-label">Shopping agent</span>
+        </div>
         <div className="nav-tray">
-          <Button size="sm" className="rounded-md" onClick={reset} disabled={busy}>
+          <Button size="sm" className="rounded-md max-sm:size-8 max-sm:p-0" aria-label="New chat" onClick={reset} disabled={busy}>
             <RotateCwIcon />
-            New chat
+            <span className="max-sm:hidden">New chat</span>
           </Button>
         </div>
       </header>
@@ -149,16 +145,16 @@ export default function ChatPage() {
           <div className="min-h-0 flex-1 overflow-y-auto">
             {turns.length === 0 ? (
               <section className="chat-welcome" aria-labelledby="welcome-title">
-                <span className="chip">Shopping agent</span>
+                <div className="welcome-mark" aria-hidden="true">
+                  {/* eslint-disable-next-line @next/next/no-img-element */}
+                  <img src="/agentcard-white-symbol.svg" alt="" className="size-6" />
+                </div>
                 <h1 id="welcome-title" className="welcome-title">What should we buy?</h1>
                 <p className="welcome-description">
-                  Find a product, book a table, or arrange a delivery.
-                  <br className="hidden sm:block" />
-                  {" "}
-                  Tell your agent what you have in mind.
+                  Ask for a product, a restaurant table, a delivery, or anything else.
                 </p>
                 <div className="suggestions" aria-label="Try a suggestion">
-                  {SUGGESTIONS.map(({ text, icon: Icon }) => (
+                  {SUGGESTIONS.map((text) => (
                     <button
                       key={text}
                       type="button"
@@ -166,8 +162,7 @@ export default function ChatPage() {
                       disabled={!shopperId}
                       className="suggest disabled:opacity-50"
                     >
-                      <Icon className="suggest-icon" aria-hidden="true" />
-                      <span>{text}</span>
+                      {text}
                     </button>
                   ))}
                 </div>
@@ -230,7 +225,7 @@ export default function ChatPage() {
                 }}
                 placeholder="Ask the agent to buy something…"
                 rows={1}
-                className="min-h-16 max-h-40 px-4 py-4 text-base md:text-base"
+                className="min-h-12 max-h-40 px-3 py-3"
               />
               <InputGroupAddon align="block-end" className="px-3 pb-3">
                 <span className="hidden font-label text-xs font-normal sm:inline">
