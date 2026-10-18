@@ -3,6 +3,8 @@
 import * as React from "react"
 import {
   ArrowUpIcon,
+  BatteryIcon,
+  CableIcon,
   CheckIcon,
   CreditCardIcon,
   ExternalLinkIcon,
@@ -10,12 +12,12 @@ import {
   LogInIcon,
   RotateCwIcon,
   ShieldCheckIcon,
+  UtensilsIcon,
 } from "lucide-react"
 
 import { streamChat, type ChatLink, type ChatProduct } from "@/lib/chat-stream"
 import { Bubble, BubbleContent } from "@/components/ui/bubble"
 import { Button } from "@/components/ui/button"
-import { Empty, EmptyContent, EmptyDescription, EmptyHeader, EmptyTitle } from "@/components/ui/empty"
 import {
   InputGroup,
   InputGroupAddon,
@@ -46,9 +48,9 @@ type Turn = {
 }
 
 const SUGGESTIONS = [
-  "Find AA batteries on Amazon",
-  "Book a table for 2 at an Italian place in SF tonight at 7pm",
-  "Find a USB-C charging cable under $20",
+  { text: "Find AA batteries on Amazon", icon: BatteryIcon },
+  { text: "Book a table for 2 at an Italian place in SF tonight at 7pm", icon: UtensilsIcon },
+  { text: "Find a USB-C charging cable under $20", icon: CableIcon },
 ]
 
 const ACTION_LINKS: Record<Exclude<ChatLink["kind"], "product">, { label: string; icon: React.ReactNode }> = {
@@ -124,117 +126,141 @@ export default function ChatPage() {
   }
 
   return (
-    <main className="mx-auto flex h-svh w-full max-w-3xl flex-col">
-      <header className="flex items-center justify-between gap-4 px-6 py-5">
-        <div className="flex items-center gap-3">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img src="/agentcard-trueblue-main.svg" alt="Agentcard" className="h-6 w-auto" />
-          <span className="chip">Shopping agent</span>
-        </div>
-        <div className="flex items-center gap-3">
-          <code className="hidden font-label text-xs text-muted-foreground sm:block">{shopperId ?? "…"}</code>
-          <Button variant="outline" size="icon" aria-label="New shopper" onClick={reset} disabled={busy}>
+    <div className="chat-app">
+      <header className="site-header">
+        <a
+          href="https://opencommerce-agentcard-web.vercel.app/"
+          className="nav-tray site-logo"
+          aria-label="Opencommerce by Agentcard — home"
+        >
+          <span className="site-logo-name">opencommerce</span>
+          <span className="site-logo-byline">by Agentcard</span>
+        </a>
+        <div className="nav-tray">
+          <Button size="sm" className="rounded-md" onClick={reset} disabled={busy}>
             <RotateCwIcon />
+            New chat
           </Button>
         </div>
       </header>
 
-      <MessageScrollerProvider autoScroll>
-        <div className="min-h-0 flex-1">
-          {turns.length === 0 ? (
-            <Empty className="h-full">
-              <EmptyHeader>
-                <div className="mb-2 flex size-12 items-center justify-center rounded-2xl bg-electric">
-                  {/* eslint-disable-next-line @next/next/no-img-element */}
-                  <img src="/agentcard-white-symbol.svg" alt="" className="size-6" />
+      <main className="chat-main">
+        <MessageScrollerProvider autoScroll>
+          <div className="min-h-0 flex-1 overflow-y-auto">
+            {turns.length === 0 ? (
+              <section className="chat-welcome" aria-labelledby="welcome-title">
+                <span className="chip">Shopping agent</span>
+                <h1 id="welcome-title" className="welcome-title">What should we buy?</h1>
+                <p className="welcome-description">
+                  Find a product, book a table, or arrange a delivery.
+                  <br className="hidden sm:block" />
+                  {" "}
+                  Tell your agent what you have in mind.
+                </p>
+                <div className="suggestions" aria-label="Try a suggestion">
+                  {SUGGESTIONS.map(({ text, icon: Icon }) => (
+                    <button
+                      key={text}
+                      type="button"
+                      onClick={() => void send(text)}
+                      disabled={!shopperId}
+                      className="suggest disabled:opacity-50"
+                    >
+                      <Icon className="suggest-icon" aria-hidden="true" />
+                      <span>{text}</span>
+                    </button>
+                  ))}
                 </div>
-                <EmptyTitle className="text-lg">What should we buy?</EmptyTitle>
-                <EmptyDescription>
-                  Ask for a product, a restaurant table or a delivery. This is a UI-only demo: replies are scripted and
-                  nothing is ever bought.
-                </EmptyDescription>
-              </EmptyHeader>
-              <EmptyContent className="flex w-full max-w-md flex-col gap-2">
-                {SUGGESTIONS.map((suggestion) => (
-                  <button
-                    key={suggestion}
-                    type="button"
-                    onClick={() => void send(suggestion)}
-                    disabled={!shopperId}
-                    className="suggest slab w-full px-4 py-3 text-left text-sm disabled:opacity-50"
-                  >
-                    {suggestion}
-                  </button>
-                ))}
-              </EmptyContent>
-            </Empty>
-          ) : (
-            <MessageScroller className="h-full">
-              <MessageScrollerViewport>
-                <MessageScrollerContent aria-busy={busy} className="gap-6 px-6 pb-4">
-                  {turns.map((turn) =>
-                    turn.role === "user" ? (
-                      <MessageScrollerItem key={turn.id} messageId={turn.id} scrollAnchor>
-                        <Message align="end">
-                          <MessageContent>
-                            <Bubble align="end">
-                              <BubbleContent>{turn.text}</BubbleContent>
-                            </Bubble>
-                          </MessageContent>
-                        </Message>
-                      </MessageScrollerItem>
-                    ) : (
-                      <MessageScrollerItem key={turn.id} messageId={turn.id}>
-                        <AssistantTurn turn={turn} busy={busy} onChoose={(link) => choose(turn.id, link)} />
-                      </MessageScrollerItem>
-                    ),
-                  )}
-                </MessageScrollerContent>
-              </MessageScrollerViewport>
-              <MessageScrollerButton />
-            </MessageScroller>
-          )}
-        </div>
-      </MessageScrollerProvider>
+              </section>
+            ) : (
+              <MessageScroller className="h-full">
+                <MessageScrollerViewport>
+                  <MessageScrollerContent aria-busy={busy} aria-label="Conversation" className="gap-6 px-1 pt-8 pb-4">
+                    {turns.map((turn) =>
+                      turn.role === "user" ? (
+                        <MessageScrollerItem key={turn.id} messageId={turn.id} scrollAnchor>
+                          <Message align="end">
+                            <MessageContent>
+                              <Bubble align="end">
+                                <BubbleContent>{turn.text}</BubbleContent>
+                              </Bubble>
+                            </MessageContent>
+                          </Message>
+                        </MessageScrollerItem>
+                      ) : (
+                        <MessageScrollerItem key={turn.id} messageId={turn.id}>
+                          <AssistantTurn turn={turn} busy={busy} onChoose={(link) => choose(turn.id, link)} />
+                        </MessageScrollerItem>
+                      ),
+                    )}
+                  </MessageScrollerContent>
+                </MessageScrollerViewport>
+                <MessageScrollerButton />
+              </MessageScroller>
+            )}
+          </div>
+        </MessageScrollerProvider>
 
-      <form
-        onSubmit={(e) => {
-          e.preventDefault()
-          void send(draft)
-        }}
-        className="px-6 pt-2 pb-6"
-      >
-        {/* The send key is disabled while the draft is empty; keep the field white, not greyed. */}
-        <InputGroup className="slab rounded-xl has-disabled:bg-card has-disabled:opacity-100">
-          <InputGroupTextarea
-            name="message"
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" && !e.shiftKey) {
-                e.preventDefault()
-                void send(draft)
-              }
-            }}
-            placeholder="Ask the agent to buy something…"
-            rows={1}
-            className="min-h-12"
-          />
-          <InputGroupAddon align="block-end">
-            <InputGroupButton
-              type="submit"
-              variant="default"
-              size="icon-sm"
-              className="ml-auto"
-              aria-label="Send"
-              disabled={busy || !draft.trim()}
-            >
-              {busy ? <LoaderCircleIcon className="animate-spin" /> : <ArrowUpIcon />}
-            </InputGroupButton>
-          </InputGroupAddon>
-        </InputGroup>
-      </form>
-    </main>
+        <form
+          onSubmit={(e) => {
+            e.preventDefault()
+            void send(draft)
+          }}
+          className="composer"
+        >
+          <div className="window focus-within:border-primary">
+            <div className="window-bar">
+              <span aria-hidden="true">↳</span>
+              <label htmlFor="message">Shopping agent</label>
+              <WindowMark />
+            </div>
+            {/* Only the send key is disabled while the draft is empty. */}
+            <InputGroup className="rounded-none border-0 bg-card shadow-none has-disabled:bg-card has-disabled:opacity-100 has-[[data-slot=input-group-control]:focus-visible]:ring-0">
+              <InputGroupTextarea
+                id="message"
+                name="message"
+                aria-describedby="demo-note"
+                value={draft}
+                onChange={(e) => setDraft(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === "Enter" && !e.shiftKey && !e.nativeEvent.isComposing) {
+                    e.preventDefault()
+                    void send(draft)
+                  }
+                }}
+                placeholder="Ask the agent to buy something…"
+                rows={1}
+                className="min-h-16 max-h-40 px-4 py-4 text-base md:text-base"
+              />
+              <InputGroupAddon align="block-end" className="px-3 pb-3">
+                <span className="hidden font-label text-xs font-normal sm:inline">
+                  Enter to send · Shift + Enter for a new line
+                </span>
+                <InputGroupButton
+                  type="submit"
+                  variant="default"
+                  size="icon-sm"
+                  className="ml-auto"
+                  aria-label="Send"
+                  disabled={busy || !shopperId || !draft.trim()}
+                >
+                  {busy ? <LoaderCircleIcon className="animate-spin" /> : <ArrowUpIcon />}
+                </InputGroupButton>
+              </InputGroupAddon>
+            </InputGroup>
+          </div>
+          <p id="demo-note" className="demo-note">Demo only. Replies are scripted and nothing is purchased.</p>
+        </form>
+      </main>
+    </div>
+  )
+}
+
+function WindowMark() {
+  return (
+    <span className="window-mark" aria-hidden="true">
+      [<svg viewBox="0 0 12 12"><path d="M6 .5v11M1.24 3.25l9.52 5.5M1.24 8.75l9.52-5.5" /></svg>]
+    </span>
   )
 }
 
@@ -244,6 +270,10 @@ function AssistantTurn({ turn, busy, onChoose }: { turn: Turn; busy: boolean; on
   return (
     <Message>
       <MessageContent className="gap-3">
+        <div className="flex items-center gap-2 font-label text-xs text-muted-foreground">
+          <WindowMark />
+          <span>Shopping agent</span>
+        </div>
         {turn.pending && !turn.text ? (
           <Bubble variant="muted">
             <BubbleContent className="flex items-center gap-2 text-muted-foreground">
@@ -277,7 +307,7 @@ function AssistantTurn({ turn, busy, onChoose }: { turn: Turn; busy: boolean; on
           </div>
         )}
         {products.length > 0 && (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2 sm:grid-cols-3">
             {products.map((link) => (
               <ProductCard
                 key={link.url}
@@ -322,7 +352,7 @@ function ProductCard({
   return (
     <div
       data-chosen={chosen}
-      className="group/product slab flex flex-col overflow-hidden data-[chosen=true]:border-primary data-[chosen=true]:shadow-[6px_6px_0_color-mix(in_srgb,var(--palette-blue-hi)_30%,transparent)]"
+      className="group/product product-card flex flex-col overflow-hidden"
     >
       <button
         type="button"
@@ -339,7 +369,7 @@ function ProductCard({
               alt=""
               loading="lazy"
               onError={() => setImageFailed(true)}
-              className="size-full rounded-lg object-contain mix-blend-multiply"
+              className="size-full object-contain mix-blend-multiply"
             />
           ) : (
             // eslint-disable-next-line @next/next/no-img-element
